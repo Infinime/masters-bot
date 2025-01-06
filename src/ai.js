@@ -1,10 +1,11 @@
 import { Ai } from '@cloudflare/ai';
-
-async function getEmbeddings(text, env) {
+async function getEmbeddings(query, env) {
     const ai = new Ai(env.AI);
-    const { data } = await ai.run('@cf/baai/bge-base-en-v1.5', { text });
-
-    if (!data[0]) throw new Error('Failed to generate embeddings');
+    const res = await ai.run('@cf/baai/bge-base-en-v1.5', {text: query});
+    const data = res.data
+    console.log("Generated embeddings:")
+    console.log(data[0])
+    if (!data) {throw new Error('Failed to generate embeddings')};
     return data[0];
 }
 
@@ -18,39 +19,38 @@ async function storeEmbeddings(id, embeddings, env) {
     return {
         id: id.toString(),
         inserted
-    }
+    };
 }
 
 async function searchEmbeddings(query, env) {
     try {
         const queryEmbeddings = await getEmbeddings(query, env);
-        console.log(queryEmbeddings)
-        const SIMILARITY_THRESHOLD = 0.001; // Only documents greater than 0.1% similarity
+        const SIMILARITY_THRESHOLD = 0; // Only documents greater than 20% similarity
 
-        const vectorQuery = await env.VECTOR_INDEX.query(queryEmbeddings, { topK: 4});
-        // Only return top 5 results.
+        const vectorQuery = await env.VECTOR_INDEX.query(queryEmbeddings, { topK: 10 });
+        console.log(vectorQuery)
+        // Only return top 3 results.
         const vecIds = vectorQuery.matches
             .filter(vec => vec.score > SIMILARITY_THRESHOLD)
             .map(vec => vec.vectorId);
 
         if (vecIds.length) {
-          const query = `SELECT * FROM documents WHERE id IN (${vecIds.join(", ")})`;
-          const { results } = await env.DOC_DB.prepare(query).bind().all()
-          return results.map(vec => vec.text)
+            const query = `SELECT * FROM documents WHERE id IN (${vecIds.join(", ")})`;
+            const { results } = await env.DOC_DB.prepare(query).bind().all();
+            return results;
+        } else {
+            print("No Matching Vectors Found")
+            return [];
         }
-
-        return [];
-
-    } catch (error) {
-        console.error("An error occurred:", error);
+    } catch (e) {
+        console.error(e);
         return [];
     }
 }
 
+export { getEmbeddings, storeEmbeddings, searchEmbeddings };
 export async function generateResponse(query, env) {
     const ai = new Ai(env.AI);
-
-    console.log(query)
 
     // Get supporting documents
     const documents = await searchEmbeddings(query, env);
@@ -59,7 +59,7 @@ export async function generateResponse(query, env) {
         ? `Context:\n${documents.map(doc => `${doc}`).join("--------------------------------\n")}`
         : ""
 
-    const systemPrompt = `You are play-acting as a professor of biology and you are helping an enthusiastic student to learn about the subject. The student needs a helpful assistant who is on point with fact-based answers to their questions at the grade 11 level. Assume they have a certain amount of familiarity with the subject - definitely enough to sniff out errors, but still need to be guided. The material provided to you is a lesson note used to teach the class which contains two modules - one on the Conservation of Natural Resources and one on the Reproductive systems of plants and animals. Each module is formatted thus: an introduction to the topic followed by a list of objectives each student is meant to complete during the course, the course content and a set of example theory and multichoice questions. IMPORTANT: IT IS EXTREMELY CRUCIAL THAT YOU DO NOT DEVIATE FROM THE MATERIAL EXCEPT WHEN ABSOLUTELY NECESSARY TO ANSWER THE STUDENT'S QUESTION. The student is asking: '${query}'. Respond with a fact based answer based on the context provided. Make sure to be cordial and friendly with them! Also make sure to keep them engaged and interested in the subject, and try to approach them as a friend! Make sure never to mention that you are a professor - remember that the student thinks you are an AI model.
+    const systemPrompt = `You are play-acting as a professor of biology and you are helping an enthusiastic student to learn about the subject. The student needs a helpful assistant who is on point with fact-based answers to their questions at the grade 11 level. Assume they have a certain amount of familiarity with the subject - definitely enough to sniff out errors, but still need to be guided. The material provided to you is a lesson note used to teach the class which contains the following modules - one on the Conservation of Natural Resources, one on the method of disease/pest control,d and one on the Reproductive systems of plants and animals. Each module is formatted thus: an introduction to the topic followed by a list of objectives each student is meant to complete during the course, the course content and a set of example theory and multichoice questions. IMPORTANT: IT IS EXTREMELY CRUCIAL THAT YOU DO NOT DEVIATE FROM THE MATERIAL EXCEPT WHEN ABSOLUTELY NECESSARY TO ANSWER THE STUDENT'S QUESTION. Respond with a fact based answer based on the context provided. Make sure to be cordial and friendly with them! Also make sure to keep them engaged and interested in the subject, and try to approach them as a friendly elder professional. Try to keep it short as possible without losing any relevant information. Make sure never to mention that you are a professor - remember that the student thinks you are an AI model. The student is asking: '${query}'.
     `
 
     console.log(systemPrompt)
