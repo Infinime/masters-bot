@@ -2,7 +2,7 @@
 // index.js
 //
 import { getAssetFromKV, NotFoundError, MethodNotAllowedError } from '@cloudflare/kv-asset-handler'
-import { processDocument, generateResponse } from './ai';
+import { processDocument, generateResponse, getEmbeddings, searchEmbeddings} from './ai';
 import manifestJSON from '__STATIC_CONTENT_MANIFEST';
 const assetManifest = JSON.parse(manifestJSON);
 
