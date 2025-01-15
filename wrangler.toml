@@ -1,6 +1,7 @@
 name = "masters-bot"
 main = "src/index.js"
 compatibility_date = "2024-12-30"
+workers_dev = true
 
 # Bind a D1 database. D1 is Cloudflare’s native serverless SQL database.
 # Docs: https://developers.cloudflare.com/workers/wrangler/configuration/#d1-databases
