@@ -5,6 +5,10 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" href="/favicon.ico" type="image/x-icon" />
 		<title>Educational Chatbot Experiment - Biology</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
 		<style>
 			html {
 				height: 100%;
@@ -12,9 +16,19 @@
 				position: fixed;
 			}
 
+			.montserrat-normal {
+				font-family: 'Montserrat', serif !important;
+				font-optical-sizing: auto;
+				font-weight: 400;
+				font-style: normal;
+			}
+
 			body {
-				font-family: 'Arial', sans-serif;
+				font-family: 'Montserrat', serif;
 				background-color: #f4f7f6;
+				font-optical-sizing: auto;
+				font-weight: 400;
+				font-style: normal;
 				margin: 0;
 				padding: 0;
 				display: flex;
@@ -39,6 +53,7 @@
 			#chat-interface {
 				position: relative;
 				padding: 20px;
+				font-family: 'Montserrat', serif;
 			}
 			#user-input {
 				width: calc(100% - 60px);
@@ -55,7 +70,7 @@
 				padding: 0;
 				margin: 0;
 				border: none;
-				background: linear-gradient(45deg, #5cb85c, #359f43);
+				background: linear-gradient(45deg, #316831, #359f43);
 				color: white;
 				cursor: pointer;
 				border-radius: 50%;
@@ -69,58 +84,6 @@
 			}
 			#send-button:hover {
 				background: linear-gradient(45deg, #40ae4f, #359f43);
-			}
-
-			#refresh-button {
-				position: absolute;
-				top: 20px;
-				right: 20px;
-				width: 40px;
-				height: 40px;
-				border-radius: 50%;
-				opacity: 0.55;
-				cursor: pointer;
-			}
-			#refresh-button img {
-				width: 100%;
-				height: 100%;
-				border-radius: 50%;
-				/*opacity: 0.35;*/
-			}
-			#refresh-button:hover {
-				background: linear-gradient(45deg, #40ae4f, #359f43);
-			}
-
-			#refresh-button:hover .tooltip {
-				visibility: visible;
-				opacity: 1;
-			}
-
-			.tooltip {
-				visibility: hidden;
-				width: 80px;
-				background-color: black;
-				color: #fff;
-				text-align: center;
-				border-radius: 5px;
-				padding: 5px;
-				position: absolute;
-				z-index: 1;
-				left: 50%;
-				transform: translateX(-50%);
-				opacity: 0;
-				transition: opacity 0.3s;
-			}
-
-			.tooltip::after {
-				content: "";
-				position: absolute;
-				bottom: -5px;
-				left: 50%;
-				transform: translateX(-50%);
-				border-width: 5px;
-				border-style: solid;
-				border-color: black transparent transparent transparent;
 			}
 
 			#response-container {
@@ -200,26 +163,168 @@
 					height: 95vh;
 				}
 			}
+			#chat-options {
+				display: flex;
+				justify-content: center;
+				gap: 7.5px;
+				padding: 10px;
+			}
+			/* The Modal (background) */
+			.modal {
+				display: none; /* Hidden by default */
+				position: fixed; /* Stay in place */
+				z-index: 1; /* Sit on top */
+				left: 0;
+				top: 0;
+				width: 100%; /* Full width */
+				height: 100%; /* Full height */
+				overflow: auto; /* Enable scroll if needed */
+				background-color: rgb(0, 0, 0); /* Fallback color */
+				background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+			}
+			.modal-content {
+				max-width: 55%;
+			}
+			/* Modal Header */
+			.modal-header {
+				padding: 2px 16px;
+				background-color: #316831;
+				color: white;
+			}
+
+			/* Modal Body */
+			.modal-body {
+				padding: 2px 16px;
+			}
+
+			/* Modal Footer */
+			.modal-footer {
+				padding: 2px 16px;
+				background-color: #316831;
+				color: white;
+			}
+
+			/* Modal Content */
+			.modal-content {
+				position: relative;
+				background-color: #fefefe;
+				margin: auto;
+				padding: 0;
+				border: 1px solid #888;
+				width: 80%;
+				box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+				animation-name: animatetop;
+				animation-duration: 0.4s;
+			}
+
+			/* The Close Button */
+			.close {
+				color: #aaa;
+				float: right;
+				font-size: 28px;
+				font-weight: bold;
+			}
+
+			.close:hover,
+			.close:focus {
+				color: black;
+				text-decoration: none;
+				cursor: pointer;
+			}
+
+			/* Add Animation */
+			@keyframes animatetop {
+				from {
+					top: -300px;
+					opacity: 0;
+				}
+				to {
+					top: 0;
+					opacity: 1;
+				}
+			}
+
+			#signup-form {
+				display: flex;
+				flex-direction: column;
+			}
+
+			#signup-form label {
+				margin: 10px 0 5px;
+			}
+
+			#signup-form input {
+				padding: 10px;
+				margin-bottom: 15px;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+			}
+
+			#signup-form button {
+				padding: 10px;
+				background-color: #316831;
+				color: white;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+			}
+
+			#signup-form button:hover {
+				background-color: #274d27;
+			}
 		</style>
 	</head>
 	<body>
 		<div id="chat-container">
 			<div id="response-container">
-				<button id="refresh-button">
-					<img src="OIP.jpeg" alt="Refresh">
-					<span class="tooltip">New Chat</span>
-				</button>
 				<div class="loader-wrapper">
 					<div id="loading" class="loading-animation"></div>
 				</div>
-				<div id="answer-container">Your answers will appear here...</div>
+				<div id="answer-container">
+					Welcome to the future of Biology Education! Type "Hello" below to interact with an AI agent that has trained on our specially
+					prepared materials
+				</div>
 			</div>
 			<div id="chat-interface">
-				<input type="text" id="user-input" placeholder="Ask your question..." autofocus />
+				<input type="text" class="montserrat-normal" id="user-input" placeholder="Ask your question..." autofocus />
 				<button id="send-button">&#10148;</button>
 			</div>
-		</div>
 
+			<div id="chat-options">
+				<button id="refresh-button" class="montserrat-normal" style="background: none; border: none; color: #316831; cursor: pointer">
+					<i class="fa fa-lg fa-plus"></i> &nbsp;New Chat
+				</button>
+				<span>|</span>
+				<button id="share-chat-button" class="montserrat-normal" style="background: none; border: none; color: #316831; cursor: pointer" disabled>
+					<i class="fa fa-lg fa-share"></i> &nbsp;Share Chat
+				</button>
+			</div>
+		</div>
+		<!-- Modal content -->
+		<div id="myModal" class="modal">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="close">&times;</span>
+					<h2>Share Chat...</h2>
+				</div>
+				<div class="modal-body">
+					<form id="signup-form">
+						<label for="name">Name:</label>
+						<input type="text" id="name" name="name" required />
+
+						<label for="email">Email:</label>
+						<input type="email" id="email" name="email" required />
+
+						<label for="password">Password:</label>
+						<input type="password" id="password" name="password" required />
+						<input type="hidden" name="chatHistory" id="chatHistory" value="" />
+						<input type="hidden" name="id" value="1" />
+
+						<button type="submit">Submit</button>
+					</form>
+				</div>
+			</div>
+		</div>
 		<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 		<script>
 			function setMobileVh() {
@@ -254,7 +359,10 @@
 							loaderWrapper.classList.remove('show');
 							// add query and response to chat history
 							const chatHistory = JSON.parse(sessionStorage.getItem('chatHistory')) || [];
-							chatHistory.push({ role: 'You', content: query });
+							const username = JSON.parse(sessionStorage.getItem('username')) || "You";
+							const email = JSON.parse(sessionStorage.getItem('email')) || '';
+							const rol = email ? `${username} (${email})` : username;
+							chatHistory.push({ role: rol, content: query });
 							chatHistory.push({ role: 'Bot', content: data.response });
 							sessionStorage.setItem('chatHistory', JSON.stringify(chatHistory));
 							data.chatHistory = chatHistory;
@@ -276,6 +384,9 @@
 					answerContainer.textContent = data.error;
 				} else {
 					const chatHistory = data.chatHistory || [];
+					if (chatHistory.length){
+						document.getElementById('share-chat-button').disabled = false;
+					}
 					answerContainer.innerHTML = chatHistory
 						.map((entry) => `<p><strong>${entry.role}:</strong> ${marked.parse(entry.content)}</p>`)
 						.join('');
@@ -290,9 +401,63 @@
 				}
 			});
 
+			document.getElementById('share-chat-button').addEventListener('click', () => {
+				// Get the modal
+				var modal = document.getElementById('myModal');
+
+				// Get the button that opens the modal
+				var btn = document.getElementById('share-chat-button');
+
+				// Get the <span> element that closes the modal
+				var span = document.getElementsByClassName('close')[0];
+				modal.style.display = 'block';
+
+				var chatHistory = JSON.parse(sessionStorage.getItem('chatHistory')) || [];
+				if (chatHistory.length) {
+					document.getElementById('chatHistory').value = JSON.stringify(chatHistory);
+				}
+
+				// When the user clicks on <span> (x), close the modal
+				span.onclick = function () {
+					modal.style.display = 'none';
+					document.getElementById('chatHistory').value = '';
+				};
+
+				// When the user clicks anywhere outside of the modal, close it
+				window.onclick = function (event) {
+					if (event.target == modal) {
+						document.getElementById('chatHistory').value = '';
+						modal.style.display = 'none';
+					}
+				};
+			});
+
+			document.getElementById('signup-form').addEventListener('submit', function (event) {
+				event.preventDefault();
+				// Handle form submission here
+				console.log(event)
+				const newName = event.target.name.value // Replace "You" with "User"
+				messages = JSON.parse(event.target.chatHistory.value);
+
+				const updatedMessages = messages.map((message) => {
+					if (message.role === 'You') {
+						return { ...message, role: newName };
+					}
+					return message;
+				});
+
+				sessionStorage.setItem('chatHistory', JSON.stringify(updatedMessages));
+				// store user details
+				sessionStorage.setItem('username', newName);
+				sessionStorage.setItem('email', event.target.email.value);
+
+				console.log(updatedMessages);
+				document.getElementById('myModal').style.display = 'none';
+			});
+
 			document.getElementById('refresh-button').addEventListener('click', () => {
 				sessionStorage.removeItem('chatHistory');
-				document.getElementById('answer-container').innerHTML = 'Your answers will appear here...';
+				document.getElementById('answer-container').innerHTML = 'Hi! Ready to start afresh!';
 			});
 
 			document.getElementById('user-input').addEventListener('keypress', (e) => {
@@ -308,7 +473,9 @@
 			// Load chat history on page load
 			window.addEventListener('load', () => {
 				const chatHistory = JSON.parse(sessionStorage.getItem('chatHistory')) || [];
-				displayResponse({ chatHistory });
+				if (chatHistory.length) {
+					displayResponse({ chatHistory });
+				}
 			});
 		</script>
 	</body>

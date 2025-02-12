@@ -2,7 +2,7 @@
 // index.js
 //
 import { getAssetFromKV, NotFoundError, MethodNotAllowedError } from '@cloudflare/kv-asset-handler'
-import { processDocument, generateResponse, getEmbeddings, searchEmbeddings} from './ai';
+import { processDocument, generateResponse} from './ai';
 import manifestJSON from '__STATIC_CONTENT_MANIFEST';
 const assetManifest = JSON.parse(manifestJSON);
 
@@ -22,11 +22,21 @@ export default {
 					return handleAddDocument(request, env);
 				 }
 				break;
+			case "image":
+				if (action === "add" && request.method === "POST") {
+					// POST /image/add
+					return handleAddImage(request, env);
+				}
+				break;
 			case "api":
 				if (action === "chat" && request.method === "GET") {
 					// GET /api/chat?query=What drinks can I make with vodka.
 
 					return handleChatQuery(url, env);
+				}
+				if (action === "share" && request.method === "POST") {
+					// POST /api/share
+					return handleShareQuery(url, env);
 				}
 				break;
 			default:
@@ -45,7 +55,25 @@ async function handleAddDocument(request, env) {
 	});
 }
 
+async function handleAddImage(request, env) {
+    const { data } = await request.json();
+    const { id, inserted } = await processImage(data, env);
+    return new Response(JSON.stringify({ id, inserted }), {
+        headers: { "Content-Type": "application/json" },
+        status: 200
+    });
+}
+
 async function handleChatQuery(url, env) {
+	const query = url.searchParams.get("query");
+	const response = await generateResponse(query, env);
+	return new Response(JSON.stringify(response), {
+		headers: { "Content-Type": "application/json" },
+		status: 200
+	});
+}
+
+async function handleShareQuery(url, env) {
 	const query = url.searchParams.get("query");
 	const response = await generateResponse(query, env);
 	return new Response(JSON.stringify(response), {

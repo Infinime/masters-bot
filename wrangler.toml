@@ -29,6 +29,10 @@ bucket = "./public"
 binding = "VECTOR_INDEX"
 index_name = "vector-index"
 
+[[vectorize]]
+binding = "IMAGE_INDEX"
+index_name = "image-index"
+
 [observability]
 enabled = true
 head_sampling_rate = 1 # optional. default = 1.
