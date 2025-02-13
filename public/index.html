@@ -9,6 +9,7 @@
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 		<style>
 			html {
 				height: 100%;
@@ -163,6 +164,14 @@
 					height: 95vh;
 				}
 			}
+			#share-chat-button:disabled {
+				color: #666; /* Change the color to indicate disabled state */
+				cursor: not-allowed; /* Change the cursor to indicate disabled state */
+				opacity: 0.6; /* Optionally, reduce the opacity */
+			}
+			#share-chat-button {
+				padding-left: 7.5px;
+			}
 			#chat-options {
 				display: flex;
 				justify-content: center;
@@ -244,33 +253,39 @@
 				}
 			}
 
-			#signup-form {
+			.modal-form {
 				display: flex;
 				flex-direction: column;
 			}
 
-			#signup-form label {
+			.modal-form label {
 				margin: 10px 0 5px;
 			}
 
-			#signup-form input {
+			.modal-form input {
 				padding: 10px;
 				margin-bottom: 15px;
 				border: 1px solid #ccc;
 				border-radius: 4px;
 			}
 
-			#signup-form button {
+			.modal-form button {
 				padding: 10px;
 				background-color: #316831;
 				color: white;
 				border: none;
 				border-radius: 4px;
 				cursor: pointer;
+				width: 30%;
+				margin: 10px auto;
 			}
 
-			#signup-form button:hover {
+			.modal-form button:hover {
 				background-color: #274d27;
+			}
+
+			#loginModal {
+				background-color: rgba(0, 0, 0, 0.85);
 			}
 		</style>
 	</head>
@@ -282,7 +297,7 @@
 				</div>
 				<div id="answer-container">
 					Welcome to the future of Biology Education! Type "Hello" below to interact with an AI agent that has trained on our specially
-					prepared materials
+					prepared materials.
 				</div>
 			</div>
 			<div id="chat-interface">
@@ -294,9 +309,13 @@
 				<button id="refresh-button" class="montserrat-normal" style="background: none; border: none; color: #316831; cursor: pointer">
 					<i class="fa fa-lg fa-plus"></i> &nbsp;New Chat
 				</button>
-				<span>|</span>
-				<button id="share-chat-button" class="montserrat-normal" style="background: none; border: none; color: #316831; cursor: pointer" disabled>
-					<i class="fa fa-lg fa-share"></i> &nbsp;Share Chat
+				<button
+					id="share-chat-button"
+					class="montserrat-normal"
+					style="background: none; border: none; color: #316831; cursor: pointer"
+					disabled
+				>
+					<span>|</span><i class="fa fa-lg fa-share"></i> &nbsp;Share Chat
 				</button>
 			</div>
 		</div>
@@ -305,10 +324,10 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<span class="close">&times;</span>
-					<h2>Share Chat...</h2>
+					<h2>Share Chat:</h2>
 				</div>
 				<div class="modal-body">
-					<form id="signup-form">
+					<form id="signup-form" class="modal-form">
 						<label for="name">Name:</label>
 						<input type="text" id="name" name="name" required />
 
@@ -325,7 +344,114 @@
 				</div>
 			</div>
 		</div>
+		<div id="loginModal" class="modal">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h2>Access Shared Chat:</h2>
+				</div>
+				<div class="modal-body">
+					<form id="login-form" class="modal-form">
+						<label for="name">Name:</label>
+						<input type="text" id="loginname" name="name" required />
+
+						<label for="email">Email:</label>
+						<input type="email" id="loginemail" name="email" required />
+
+						<label for="password">Password:</label>
+						<input type="password" id="loginpassword" name="password" required />
+
+						<button type="submit">Submit</button>
+					</form>
+				</div>
+			</div>
+		</div>
+		<!-- Third Modal for displaying the shared chat link -->
+		<div id="linkModal" class="modal">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="close">&times;</span>
+					<h2>Shared Chat Link:</h2>
+				</div>
+				<div class="modal-body">
+					<p id="shared-link" style="word-break: break-all"></p>
+					<button
+						id="copy-link-button"
+						style="
+							padding: 10px;
+							background-color: #316831;
+							color: white;
+							border: none;
+							border-radius: 4px;
+							cursor: pointer;
+							width: 30%;
+							margin: 10px auto;
+						"
+					>
+						Copy Link
+					</button>
+				</div>
+			</div>
+		</div>
+		<script>
+			const params = new URLSearchParams(window.location.search);
+			document.getElementById('copy-link-button').addEventListener('click', () => {
+				const linkText = document.getElementById('shared-link').textContent;
+				navigator.clipboard.writeText(linkText).then(() => {
+					alert('Link copied to clipboard');
+				});
+			});
+
+			// Function to show the link modal with the provided link
+			function showLinkModal(link) {
+				document.getElementById('shared-link').textContent = link;
+				document.getElementById('linkModal').style.display = 'block';
+			}
+
+			// Close the link modal when the user clicks on <span> (x)
+			document.querySelector('#linkModal .close').onclick = function () {
+				document.getElementById('linkModal').style.display = 'none';
+			};
+
+			// Close the link modal when the user clicks anywhere outside of the modal
+			window.onclick = function (event) {
+				if (event.target == document.getElementById('linkModal')) {
+					document.getElementById('linkModal').style.display = 'none';
+				}
+			};
+		</script>
 		<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+		<script>
+			document.addEventListener('DOMContentLoaded', (event) => {
+				if (params.has('id')) {
+					if (!sessionStorage.getItem('username')) {
+						document.getElementById('loginModal').style.display = 'block';
+					}
+					const triggerValue = params.get('id');
+					getSharedChat(triggerValue);
+				}
+			});
+
+			function getSharedChat(value) {
+				// fetch the shared chat if username is not in session stored variables (i'm not the sender)
+				const apiUrl = `/api/share?id=${value}`;
+				fetch(apiUrl)
+					.then((response) => response.json())
+					.then((data) => {
+						sessionStorage.setItem('chatHistory', data.chat_history);
+						sessionStorage.setItem('chat-password', data.password);
+						document.getElementById('answer-container').innerHTML = JSON.parse(data.chat_history)
+							.map((entry) => `<p><strong>${entry.role}:</strong> ${marked.parse(entry.content)}</p>`)
+							.join('');
+						document.getElementById('share-chat-button').style.display = 'None';
+						if ((data.password && value) || !data.email == sessionStorage.getItem('email')) {
+							document.getElementById('loginModal').style.display = 'block';
+						}
+					})
+					.catch((error) => {
+						console.error('Error:', error);
+					});
+			}
+		</script>
 		<script>
 			function setMobileVh() {
 				if (window.innerWidth <= 600) {
@@ -346,6 +472,10 @@
 				const loaderWrapper = document.querySelector('.loader-wrapper');
 				const answerContainer = document.getElementById('answer-container');
 
+				if (params.has('id')) {
+					const triggerValue = params.get('id');
+					updateSharedQuery(triggerValue);
+				}
 				loaderWrapper.classList.add('show');
 
 				answerContainer.style.opacity = 0;
@@ -359,8 +489,8 @@
 							loaderWrapper.classList.remove('show');
 							// add query and response to chat history
 							const chatHistory = JSON.parse(sessionStorage.getItem('chatHistory')) || [];
-							const username = JSON.parse(sessionStorage.getItem('username')) || "You";
-							const email = JSON.parse(sessionStorage.getItem('email')) || '';
+							const username = sessionStorage.getItem('username') || 'You';
+							const email = sessionStorage.getItem('email') || '';
 							const rol = email ? `${username} (${email})` : username;
 							chatHistory.push({ role: rol, content: query });
 							chatHistory.push({ role: 'Bot', content: data.response });
@@ -368,6 +498,24 @@
 							data.chatHistory = chatHistory;
 							displayResponse(data);
 							answerContainer.style.opacity = 1;
+
+							// Fetch and display relevant images
+							const imageApiUrl = `/api/image?query=${encodeURIComponent(query)}`;
+							fetch(imageApiUrl)
+								.then((response) => response.text())
+								.then((imageHtml) => {
+									const imageContainer = document.createElement('div');
+									imageContainer.innerHTML = imageHtml;
+									answerContainer.appendChild(imageContainer);
+								})
+								.catch((error) => {
+									console.error('Error fetching images:', error);
+								});
+
+							if (params.has('id') && chatHistory.length) {
+								const triggerValue = params.get('id');
+								updateSharedQuery(triggerValue);
+							}
 						}, 500);
 					})
 					.catch((error) => {
@@ -384,12 +532,33 @@
 					answerContainer.textContent = data.error;
 				} else {
 					const chatHistory = data.chatHistory || [];
-					if (chatHistory.length){
+					if (chatHistory.length) {
 						document.getElementById('share-chat-button').disabled = false;
 					}
 					answerContainer.innerHTML = chatHistory
 						.map((entry) => `<p><strong>${entry.role}:</strong> ${marked.parse(entry.content)}</p>`)
 						.join('');
+					answerContainer.scrollTop = answerContainer.scrollHeight;
+				}
+			}
+			async function updateSharedQuery(id) {
+				const apiUrl = `/api/update`;
+				const chatHistory = JSON.parse(sessionStorage.getItem('chatHistory')) || [];
+				try {
+					const response = await fetch(apiUrl, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							id: id,
+							chatHistory: JSON.stringify(chatHistory),
+						}),
+					});
+					const data = await response.json();
+					console.log('Chat updated successfully!');
+				} catch (error) {
+					console.error('Error updating shared chat:', error);
 				}
 			}
 
@@ -432,11 +601,30 @@
 				};
 			});
 
+			document.getElementById('login-form').addEventListener('submit', function (event) {
+				event.preventDefault();
+				// Handle form submission here
+				const passwordField = document.getElementById('loginpassword');
+				const hashedPassword = CryptoJS.SHA256(passwordField.value).toString();
+				passwordField.value = hashedPassword;
+				const newName = event.target.name.value; // Replace "You" with "User"
+				const email = event.target.email.value;
+				sessionStorage.setItem('username', newName);
+				sessionStorage.setItem('email', email);
+				console.log('Hashed Password:', hashedPassword);
+				if (sessionStorage.getItem('chat-password') == hashedPassword) {
+					document.getElementById('loginModal').style.display = 'none';
+				}
+			});
 			document.getElementById('signup-form').addEventListener('submit', function (event) {
 				event.preventDefault();
 				// Handle form submission here
-				console.log(event)
-				const newName = event.target.name.value // Replace "You" with "User"
+
+				const passwordField = document.getElementById('password');
+				const hashedPassword = CryptoJS.SHA256(passwordField.value).toString();
+				passwordField.value = hashedPassword;
+				console.log('Hashed Password:', hashedPassword);
+				const newName = event.target.name.value; // Replace "You" with "User"
 				messages = JSON.parse(event.target.chatHistory.value);
 
 				const updatedMessages = messages.map((message) => {
@@ -450,14 +638,45 @@
 				// store user details
 				sessionStorage.setItem('username', newName);
 				sessionStorage.setItem('email', event.target.email.value);
-
-				console.log(updatedMessages);
-				document.getElementById('myModal').style.display = 'none';
+				const apiUrl = '/api/share';
+				console.log(
+					JSON.stringify({
+						name: newName,
+						email: event.target.email.value,
+						password: hashedPassword,
+						chatHistory: JSON.stringify(updatedMessages),
+					})
+				);
+				fetch(apiUrl, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						name: newName,
+						email: event.target.email.value,
+						password: hashedPassword,
+						chatHistory: JSON.stringify(updatedMessages),
+					}),
+				})
+					.then((response) => response.json())
+					.then((data) => {
+						console.log('Success:', data);
+						document.getElementById('myModal').style.display = 'none';
+						// Extract the ID from the returned data and display the link modal with the generated link.
+						showLinkModal(`${window.location.origin}/?id=${data.id}`);
+					})
+					.catch((error) => {
+						alert('Error sharing:', error);
+					});
 			});
 
 			document.getElementById('refresh-button').addEventListener('click', () => {
 				sessionStorage.removeItem('chatHistory');
 				document.getElementById('answer-container').innerHTML = 'Hi! Ready to start afresh!';
+				document.getElementById('share-chat-button').disabled = true;
+				document.getElementById('share-chat-button').style.display = 'block';
+				history.pushState(null, '', '/');
 			});
 
 			document.getElementById('user-input').addEventListener('keypress', (e) => {
@@ -477,6 +696,19 @@
 					displayResponse({ chatHistory });
 				}
 			});
+
+			if (params.has('id')) {
+				const triggerValue = params.get('id');
+				setInterval(() => {
+					updateSharedQuery(triggerValue);
+				}, 7500);
+			}
 		</script>
+		<div class="copyright" style="position: absolute; bottom: 12px">
+			<p style="text-align: center; font-size: 12px; color: #666; margin-top: 20px">
+				&copy; 2025 <a href="mailto:futminna.edu.ng" target="_blank" style="color: #666">UGWU, Juliana Ifeoma, PhD/SSTE/2022/12819</a> | All
+				Rights Reserved
+			</p>
+		</div>
 	</body>
 </html>
